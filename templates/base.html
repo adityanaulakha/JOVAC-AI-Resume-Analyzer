@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}JOVAC AI Resume Analyzer{% endblock %}</title>
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+  {% block head_extra %}{% endblock %}
+  <script>
+    // Prefer color scheme from localStorage; fallback to system
+    (function(){
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.dataset.theme = theme;
+    })();
+  </script>
+  <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+</head>
+<body>
+  <header class="nav">
+    <div class="nav__inner container">
+      <a class="brand" href="{{ url_for('index') }}">
+        <span class="brand__logo">🧠</span>
+        <span class="brand__text">JOVAC<br><small>AI Resume Analyzer</small></span>
+      </a>
+      <div class="nav__actions">
+        <button class="btn btn--ghost" id="themeToggle" title="Toggle theme">🌗</button>
+        <a class="btn btn--primary" href="{{ url_for('index') }}">Analyze</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer container">
+    <p>© {{ 2025 }} JOVAC. Built with Flask + Gemini.</p>
+  </footer>
+
+  <div id="appLoading" class="loading" aria-hidden="true">
+    <div class="loading__spinner"></div>
+    <div class="loading__text">Analyzing resume…</div>
+  </div>
+
+  {% block body_extra %}{% endblock %}
+</body>
+</html>

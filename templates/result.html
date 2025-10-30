@@ -1,35 +1,81 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Resume Analysis Result</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-<body>
-<div class="container">
-    <h1>📊 Resume Analysis Result</h1>
+{% extends 'base.html' %}
 
-    <h3>🟢 Matched Skills</h3>
-    <ul>
-        {% for skill in parsed.matched_skills %}
-        <li><strong>{{ skill.skill }}</strong>: {{ skill.note }}</li>
-        {% endfor %}
-    </ul>
+{% block title %}Analysis Result · JOVAC{% endblock %}
 
-    <h3>🔴 Missing Skills</h3>
-    <ul>
-        {% for skill in parsed.missing_skills %}
-        <li><strong>{{ skill.skill }}</strong>: {{ skill.note }}</li>
-        {% endfor %}
-    </ul>
+{% block content %}
+    <section class="card card--elevated">
+        <div class="result__header">
+            <div class="progress" data-value="{{ parsed.match if parsed.match != 'N/A' else 0 }}">
+                <div class="progress__ring">
+                    <div class="progress__mask"></div>
+                    <div class="progress__center">{{ parsed.match }}<span class="unit">%</span></div>
+                </div>
+                <div class="progress__label">Match</div>
+            </div>
+            <div class="result__actions">
+                <button class="btn btn--ghost" id="copyJsonBtn" data-json='{{ parsed.raw|tojson|safe }}'>Copy JSON</button>
+                <button class="btn btn--secondary" id="downloadJsonBtn" data-json='{{ parsed.raw|tojson|safe }}'>Download JSON</button>
+                <a class="btn btn--primary" href="/">Analyze Another</a>
+            </div>
+        </div>
 
-    <h3>📈 Match Percentage</h3>
-    <p><strong>{{ parsed.match_percentage }}%</strong></p>
+        <div class="grid grid--2">
+            <div>
+                <h3 class="section__title">Matched Skills</h3>
+                <ul class="skills">
+                    {% for item in parsed.matched_skills %}
+                        {% if item.skill is defined %}
+                            <li class="skills__item"><span class="chip chip--success">{{ item.skill }}</span><span class="skills__note">{{ item.note }}</span></li>
+                        {% else %}
+                            <li class="skills__item"><span class="chip chip--success">{{ item }}</span></li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+            <div>
+                <h3 class="section__title">Missing Skills</h3>
+                <ul class="skills">
+                    {% for item in parsed.missing_skills %}
+                        {% if item.skill is defined %}
+                            <li class="skills__item"><span class="chip chip--warning">{{ item.skill }}</span><span class="skills__note">{{ item.note }}</span></li>
+                        {% else %}
+                            <li class="skills__item"><span class="chip chip--warning">{{ item }}</span></li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
 
-    <h3>🧾 Summary</h3>
-    <p>{{ parsed.summary }}</p>
+        <div class="grid">
+            <div>
+                <h3 class="section__title">Summary</h3>
+                <p class="paragraph">{{ parsed.summary }}</p>
+            </div>
+            {% if parsed.justification %}
+            <div>
+                <h3 class="section__title">Justification</h3>
+                <p class="paragraph">{{ parsed.justification }}</p>
+            </div>
+            {% endif %}
+        </div>
 
-    <a href="{{ url_for('index') }}" class="back-btn">← Analyze Another Resume</a>
-</div>
-</body>
-</html>
+        {% if parsed.recommendations %}
+            <div class="grid">
+                <div>
+                    <h3 class="section__title">Recommendations</h3>
+                    <p class="paragraph">{{ parsed.recommendations }}</p>
+                </div>
+            </div>
+        {% endif %}
+    </section>
+
+    <script>
+        // Initialize circular progress based on data-value
+        const p = document.querySelector('.progress');
+        if (p) {
+            const value = Math.max(0, Math.min(100, parseInt(p.getAttribute('data-value') || '0')));
+            p.style.setProperty('--value', value);
+        }
+    </script>
+{% endblock %}
+

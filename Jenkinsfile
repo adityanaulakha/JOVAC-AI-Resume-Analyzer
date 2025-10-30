@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/<your-username>/flask_resume_analyzer.git'
+                git 'https://github.com/adityanaulakha/JOVAC-AI-Resume-Analyzer.git'
             }
         }
 

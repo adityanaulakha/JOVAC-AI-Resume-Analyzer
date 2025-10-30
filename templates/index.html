@@ -1,29 +1,57 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>AI Resume Analyzer</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-<body>
-<div class="container">
-    <h1>🤖 AI Resume Analyzer</h1>
-    <form method="POST" enctype="multipart/form-data">
-        <label>Job Description:</label>
-        <textarea name="job_description" required></textarea>
+{% extends 'base.html' %}
 
-        <label>Upload Resume (PDF/TXT):</label>
-        <input type="file" name="resume" accept=".pdf,.txt" required>
+{% block title %}Analyze Resume · JOVAC{% endblock %}
 
-        <label>Detail Level:</label>
-        <select name="detail_level">
-            <option value="Concise">Concise</option>
-            <option value="Standard" selected>Standard</option>
-            <option value="Detailed">Detailed</option>
-        </select>
+{% block content %}
+    <section class="hero">
+        <div class="hero__text">
+            <h1 class="hero__title">AI Resume Analyzer</h1>
+            <p class="hero__subtitle">Get a skill-by-skill match with actionable notes. Upload your resume, paste the JD, and let the AI do the rest.</p>
+        </div>
+    </section>
 
-        <button type="submit">Analyze</button>
-    </form>
-</div>
-</body>
-</html>
+    <section class="card card--elevated">
+        <form id="analyzeForm" method="POST" enctype="multipart/form-data">
+            <div class="form__row">
+                <label for="job_description" class="form__label">Job Description</label>
+                <textarea id="job_description" name="job_description" class="input input--textarea" placeholder="Paste the JD here…" required></textarea>
+            </div>
+
+            <div class="form__row">
+                <label class="form__label">Resume (PDF or TXT)</label>
+                <div id="dropzone" class="dropzone" role="button" tabindex="0">
+                    <input id="resume" type="file" name="resume" accept=".pdf,.txt" hidden required />
+                    <div class="dropzone__icon">📄</div>
+                    <div class="dropzone__text">
+                        <strong>Drag & drop your file</strong> or <span class="link">browse</span>
+                        <div id="fileName" class="dropzone__filename"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form__row">
+                <label class="form__label">Detail level</label>
+                <div class="segmented">
+                    <label class="segmented__item">
+                        <input type="radio" name="detail_level" value="Concise" />
+                        <span>Concise</span>
+                    </label>
+                    <label class="segmented__item">
+                        <input type="radio" name="detail_level" value="Standard" checked />
+                        <span>Standard</span>
+                    </label>
+                    <label class="segmented__item">
+                        <input type="radio" name="detail_level" value="Detailed" />
+                        <span>Detailed</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form__actions">
+                <button type="submit" class="btn btn--primary btn--lg" id="submitBtn">Analyze Resume</button>
+                <span class="muted">No files are stored. Processing happens securely.</span>
+            </div>
+        </form>
+    </section>
+{% endblock %}
+

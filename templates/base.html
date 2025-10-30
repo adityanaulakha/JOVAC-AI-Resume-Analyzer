@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{% block title %}JOVAC AI Resume Analyzer{% endblock %}</title>
+  <meta name="description" content="AI-powered resume analyzer that matches your skills with job descriptions and provides actionable insights." />
+  <title>{% block title %}AI Resume Analyzer{% endblock %}</title>
   <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
   {% block head_extra %}{% endblock %}
   <script>
-    // Prefer color scheme from localStorage; fallback to system
-    (function(){
+    // Initialize theme before page render to prevent flash
+    (function() {
       const saved = localStorage.getItem('theme');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       const theme = saved || (prefersDark ? 'dark' : 'light');
@@ -23,11 +24,13 @@
     <div class="nav__inner container">
       <a class="brand" href="{{ url_for('index') }}">
         <span class="brand__logo">🧠</span>
-        <span class="brand__text">JOVAC<br><small>AI Resume Analyzer</small></span>
+        <span class="brand__text">
+          AI Resume Analyzer
+        </span>
       </a>
       <div class="nav__actions">
-        <button class="btn btn--ghost" id="themeToggle" title="Toggle theme">🌗</button>
-        <a class="btn btn--primary" href="{{ url_for('index') }}">Analyze</a>
+        <button class="btn btn--ghost" id="themeToggle" title="Toggle theme" aria-label="Toggle theme">🌗</button>
+        <a class="btn btn--primary" href="{{ url_for('index') }}">New Analysis</a>
       </div>
     </div>
   </header>
@@ -37,12 +40,12 @@
   </main>
 
   <footer class="footer container">
-    <p>© {{ 2025 }} JOVAC. Built with Flask + Gemini.</p>
+    <p>© Powered by Flask + Gemini AI. Built with precision.</p>
   </footer>
 
-  <div id="appLoading" class="loading" aria-hidden="true">
+  <div id="appLoading" class="loading" aria-hidden="true" role="alert" aria-live="polite">
     <div class="loading__spinner"></div>
-    <div class="loading__text">Analyzing resume…</div>
+    <div class="loading__text">Analyzing your resume...</div>
   </div>
 
   {% block body_extra %}{% endblock %}

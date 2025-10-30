@@ -1,81 +1,159 @@
 {% extends 'base.html' %}
 
-{% block title %}Analysis Result · JOVAC{% endblock %}
+{% block title %}Analysis Results · JOVAC AI{% endblock %}
 
 {% block content %}
-    <section class="card card--elevated">
-        <div class="result__header">
-            <div class="progress" data-value="{{ parsed.match if parsed.match != 'N/A' else 0 }}">
-                <div class="progress__ring">
-                    <div class="progress__mask"></div>
-                    <div class="progress__center">{{ parsed.match }}<span class="unit">%</span></div>
-                </div>
-                <div class="progress__label">Match</div>
-            </div>
-            <div class="result__actions">
-                <button class="btn btn--ghost" id="copyJsonBtn" data-json='{{ parsed.raw|tojson|safe }}'>Copy JSON</button>
-                <button class="btn btn--secondary" id="downloadJsonBtn" data-json='{{ parsed.raw|tojson|safe }}'>Download JSON</button>
-                <a class="btn btn--primary" href="/">Analyze Another</a>
-            </div>
+<section class="card card--elevated">
+  
+  <div class="result__header">
+    <div class="progress" data-value="{{ parsed.match if parsed.match != 'N/A' else 0 }}">
+      <div class="progress__ring">
+        <div class="progress__center">
+          {{ parsed.match }}<span class="unit">%</span>
         </div>
+      </div>
+      <div class="progress__label">Match Score</div>
+    </div>
 
-        <div class="grid grid--2">
-            <div>
-                <h3 class="section__title">Matched Skills</h3>
-                <ul class="skills">
-                    {% for item in parsed.matched_skills %}
-                        {% if item.skill is defined %}
-                            <li class="skills__item"><span class="chip chip--success">{{ item.skill }}</span><span class="skills__note">{{ item.note }}</span></li>
-                        {% else %}
-                            <li class="skills__item"><span class="chip chip--success">{{ item }}</span></li>
-                        {% endif %}
-                    {% endfor %}
-                </ul>
-            </div>
-            <div>
-                <h3 class="section__title">Missing Skills</h3>
-                <ul class="skills">
-                    {% for item in parsed.missing_skills %}
-                        {% if item.skill is defined %}
-                            <li class="skills__item"><span class="chip chip--warning">{{ item.skill }}</span><span class="skills__note">{{ item.note }}</span></li>
-                        {% else %}
-                            <li class="skills__item"><span class="chip chip--warning">{{ item }}</span></li>
-                        {% endif %}
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
+    <div class="result__actions">
+      <button 
+        class="btn btn--ghost" 
+        id="copyJsonBtn" 
+        data-json='{{ parsed.raw|tojson|safe }}'
+        aria-label="Copy analysis as JSON"
+      >
+        Copy JSON
+      </button>
+      <button 
+        class="btn btn--secondary" 
+        id="downloadJsonBtn" 
+        data-json='{{ parsed.raw|tojson|safe }}'
+        aria-label="Download analysis as JSON"
+      >
+        Download JSON
+      </button>
+      <a class="btn btn--primary" href="{{ url_for('index') }}">
+        Analyze Another
+      </a>
+    </div>
+  </div>
 
-        <div class="grid">
-            <div>
-                <h3 class="section__title">Summary</h3>
-                <p class="paragraph">{{ parsed.summary }}</p>
-            </div>
-            {% if parsed.justification %}
-            <div>
-                <h3 class="section__title">Justification</h3>
-                <p class="paragraph">{{ parsed.justification }}</p>
-            </div>
-            {% endif %}
-        </div>
+  <div class="grid grid--2">
+    <div>
+      <h3 class="section__title">✓ Matched Skills</h3>
+      {% if parsed.matched_skills and parsed.matched_skills|length > 0 %}
+        <ul class="skills">
+          {% for item in parsed.matched_skills %}
+            <li class="skills__item">
+              <span class="chip chip--success">
+                {% if item.skill is defined %}
+                  {{ item.skill }}
+                {% else %}
+                  {{ item }}
+                {% endif %}
+              </span>
+              {% if item.note is defined %}
+                <span class="skills__note">{{ item.note }}</span>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="paragraph">No matched skills found.</p>
+      {% endif %}
+    </div>
 
-        {% if parsed.recommendations %}
-            <div class="grid">
-                <div>
-                    <h3 class="section__title">Recommendations</h3>
-                    <p class="paragraph">{{ parsed.recommendations }}</p>
-                </div>
-            </div>
-        {% endif %}
-    </section>
+    <div>
+      <h3 class="section__title">⚠ Missing Skills</h3>
+      {% if parsed.missing_skills and parsed.missing_skills|length > 0 %}
+        <ul class="skills">
+          {% for item in parsed.missing_skills %}
+            <li class="skills__item">
+              <span class="chip chip--warning">
+                {% if item.skill is defined %}
+                  {{ item.skill }}
+                {% else %}
+                  {{ item }}
+                {% endif %}
+              </span>
+              {% if item.note is defined %}
+                <span class="skills__note">{{ item.note }}</span>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="paragraph">No missing skills identified.</p>
+      {% endif %}
+    </div>
+  </div>
 
-    <script>
-        // Initialize circular progress based on data-value
-        const p = document.querySelector('.progress');
-        if (p) {
-            const value = Math.max(0, Math.min(100, parseInt(p.getAttribute('data-value') || '0')));
-            p.style.setProperty('--value', value);
-        }
-    </script>
+  <div class="grid">
+    <div>
+      <h3 class="section__title">📋 Summary</h3>
+      <p class="paragraph">{{ parsed.summary or 'No summary available.' }}</p>
+    </div>
+
+    {% if parsed.justification %}
+    <div>
+      <h3 class="section__title">💡 Justification</h3>
+      <p class="paragraph">{{ parsed.justification }}</p>
+    </div>
+    {% endif %}
+
+    {% if parsed.recommendations %}
+    <div>
+      <h3 class="section__title">🎯 Recommendations</h3>
+      <p class="paragraph">{{ parsed.recommendations }}</p>
+    </div>
+    {% endif %}
+  </div>
+
+</section>
+
+<style>
+  /* Page-specific animations */
+  .result__header {
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  .grid {
+    animation: fadeInUp 0.6s ease-out 0.2s backwards;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Stagger animation for skill items */
+  .skills__item {
+    animation: slideIn 0.4s ease-out backwards;
+  }
+
+  .skills__item:nth-child(1) { animation-delay: 0.1s; }
+  .skills__item:nth-child(2) { animation-delay: 0.15s; }
+  .skills__item:nth-child(3) { animation-delay: 0.2s; }
+  .skills__item:nth-child(4) { animation-delay: 0.25s; }
+  .skills__item:nth-child(5) { animation-delay: 0.3s; }
+  .skills__item:nth-child(n+6) { animation-delay: 0.35s; }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+</style>
+
 {% endblock %}
-

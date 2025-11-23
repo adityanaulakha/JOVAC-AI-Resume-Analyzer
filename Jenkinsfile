@@ -5,7 +5,7 @@ pipeline {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
         EC2_SSH = credentials('ec2-ssh-key')
         GITHUB_TOKEN = credentials('github-token')
-        EC2_IP = "15.206.145.150"
+        EC2_IP = "65.0.184.32"
         IMAGE_NAME = "adityanaulakha/ai-resume-analyzer"
     }
 

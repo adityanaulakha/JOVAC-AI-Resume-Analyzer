@@ -2,10 +2,10 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub')   // Docker Hub creds
-        EC2_SSH = credentials('ec2-ssh-key')               // SSH private key stored in Jenkins
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+        EC2_SSH = credentials('ec2-ssh-key')
         GITHUB_TOKEN = credentials('github-token')
-        EC2_IP = "15.206.145.150"                          // UPDATED IP
+        EC2_IP = "15.206.145.150"
         IMAGE_NAME = "adityanaulakha/ai-resume-analyzer"
     }
 
@@ -51,15 +51,15 @@ pipeline {
                 sh '''
                     echo "🚀 Deploying on EC2..."
 
-                    # Save private key for SSH
+                    # Save private key
                     echo "$EC2_SSH" > ec2_key.pem
                     chmod 600 ec2_key.pem
 
                     ssh -i ec2_key.pem -o StrictHostKeyChecking=no ubuntu@$EC2_IP << EOF
-                        echo "🔁 Pulling latest image from Docker Hub..."
+                        echo "🔁 Pulling latest image..."
                         docker pull $IMAGE_NAME:latest
 
-                        echo "🛑 Stopping existing container if running..."
+                        echo "🛑 Stopping existing container..."
                         docker stop ai-resume || true
                         docker rm ai-resume || true
 

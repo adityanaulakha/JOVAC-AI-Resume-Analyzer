@@ -3,9 +3,7 @@ pipeline {
 
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
-        EC2_SSH = credentials('ec2_key')
         GITHUB_TOKEN = credentials('github-token')
-        EC2_IP = "13.232.73.67"
         IMAGE_NAME = "adityanaulakha/ai-resume-analyzer"
     }
 
@@ -45,29 +43,28 @@ pipeline {
             }
         }
 
-        stage('Deploy on EC2 Server') {
+        stage('Deploy Locally on EC2') {
             steps {
                 sh '''
-                    echo "🚀 Deploying on EC2..."
+                    echo "🚀 Deploying locally on EC2..."
 
-                    # Save private key
-                    echo "$EC2_SSH" > ec2_key.pem
-                    chmod 600 ec2_key.pem
+                    # Make sure Jenkins has permission
+                    sudo usermod -aG docker jenkins || true
 
-                    ssh -i ec2_key.pem -o StrictHostKeyChecking=no ubuntu@$EC2_IP << 'EOF'
-                        echo "🔁 Pulling latest image..."
-                        docker pull $IMAGE_NAME:latest
+                    echo "🛑 Stopping old container"
+                    docker stop ai-resume || true
+                    docker rm ai-resume || true
 
-                        echo "🛑 Stopping existing container..."
-                        docker stop ai-resume || true
-                        docker rm ai-resume || true
+                    echo "📥 Pulling latest Docker image"
+                    docker pull $IMAGE_NAME:latest
 
-                        echo "▶️ Running new container..."
-                        docker run -d \
-                            -p 5000:5000 \
-                            --name ai-resume \
-                            $IMAGE_NAME:latest
-                    EOF
+                    echo "▶️ Starting new container"
+                    docker run -d \
+                        -p 5000:5000 \
+                        --name ai-resume \
+                        $IMAGE_NAME:latest
+
+                    echo "🎉 Deployment complete!"
                 '''
             }
         }

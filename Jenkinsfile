@@ -46,25 +46,23 @@ pipeline {
         stage('Deploy Locally on EC2') {
             steps {
                 sh '''
-                    echo "🚀 Deploying locally on EC2..."
-
-                    # Make sure Jenkins has permission
+                    echo "Deploying locally on EC2..."
                     sudo usermod -aG docker jenkins || true
 
-                    echo "🛑 Stopping old container"
+                    echo "Stopping old container"
                     docker stop ai-resume || true
                     docker rm ai-resume || true
 
-                    echo "📥 Pulling latest Docker image"
+                    echo "Pulling latest Docker image"
                     docker pull $IMAGE_NAME:latest
 
-                    echo "▶️ Starting new container"
+                    echo "Starting new container"
                     docker run -d \
                         -p 5000:5000 \
                         --name ai-resume \
                         $IMAGE_NAME:latest
 
-                    echo "🎉 Deployment complete!"
+                    echo "Deployment complete!"
                 '''
             }
         }
